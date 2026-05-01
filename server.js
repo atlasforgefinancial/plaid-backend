@@ -51,7 +51,39 @@ app.post("/exchange_public_token", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json(err.response?.data || { error: err.message });
+  } app.post("/accounts", async (req, res) => {
+  try {
+    const { access_token } = req.body;
+
+    const response = await client.accountsGet({
+      access_token,
+    });
+
+    res.json({
+      accounts: response.data.accounts,
+    });
+  } catch (error) {
+    console.error("Accounts error:", error.response?.data || error);
+    res.status(500).json(error.response?.data || { error: "accounts_failed" });
   }
+});
+app.post("/transactions", async (req, res) => {
+  try {
+    const { access_token } = req.body;
+
+    const response = await client.transactionsSync({
+      access_token,
+    });
+
+    res.json({
+      transactions: response.data.added,
+      next_cursor: response.data.next_cursor,
+    });
+  } catch (error) {
+    console.error("Transactions error:", error.response?.data || error);
+    res.status(500).json(error.response?.data || { error: "transactions_failed" });
+  }
+});
 });
 
 app.listen(process.env.PORT || 3000);
